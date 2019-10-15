@@ -4,10 +4,9 @@
             <v-flex xs12 sm11 md10>
                 <v-card>
                     <v-toolbar>
-                        <v-toolbar-title class="the-title"
-                            >Nova Temporada</v-toolbar-title
-                        >
+                        <v-toolbar-title class="the-title">Nova Temporada</v-toolbar-title>
                     </v-toolbar>
+                    
                     <v-card-text>
                         <v-form ref="form" v-model="valid" lazy-validation>
                             <beauty-text-field
@@ -94,8 +93,7 @@ export default {
         BeautyButton
     },
     computed: {
-        presenters: vm =>
-            helpers.snapToArray(vm.$store.state.presenters.presenters),
+        presenters: vm => helpers.snapToArray(vm.$store.state.presenters.presenters),
         judges: vm => helpers.snapToArray(vm.$store.state.judges.judges)
     },
     data(vm) {

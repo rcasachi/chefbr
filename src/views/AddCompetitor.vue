@@ -4,9 +4,7 @@
             <v-flex xs12 sm11 md10>
                 <v-card>
                     <v-toolbar>
-                        <v-toolbar-title class="the-title"
-                            >Novo Competidor</v-toolbar-title
-                        >
+                        <v-toolbar-title class="the-title">Novo Competidor</v-toolbar-title>
                     </v-toolbar>
                     <v-card-text>
                         <v-form ref="form" v-model="valid" lazy-validation>

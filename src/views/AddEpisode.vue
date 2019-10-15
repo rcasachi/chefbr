@@ -4,8 +4,7 @@
             <v-flex xs12 sm11 md10>
                 <v-card>
                     <v-toolbar>
-                        <v-toolbar-title class="the-title">Novo Episódio</v-toolbar-title
-                        >
+                        <v-toolbar-title class="the-title">Novo Episódio</v-toolbar-title>
                     </v-toolbar>
                     <v-card-text>
                         <v-form ref="form" v-model="valid" lazy-validation>
@@ -37,7 +36,11 @@
                             
                             <invited v-model="info.guests.value" class="mb-2"></invited>
 
-                            <challenge class="mb-2"></challenge>
+                            <challenge 
+                                v-model="info.challenges.value" 
+                                :season="$route.params.key"
+                                class="mb-2"
+                            ></challenge>
                         </v-form>
                     </v-card-text>
                     <v-card-actions>
@@ -67,19 +70,15 @@ import BeautyTextField from '@/components/BeautyTextField';
 import BeautyDate from '@/components/BeautyDate';
 import Invited from '@/components/AppEpisodes/Invited';
 import Challenge from '@/components/AppEpisodes/Challenge';
-import firebase from 'firebase';
-import router from '@/router';
 
 export default {
-    name: 'AddJudge',
+    name: 'AddEpisode',
     components: {
         BeautyTextField, BeautyDate, Invited, Challenge
     },
     data() {
         return {
             valid: false,
-            date: '',
-            competitors: [],
             info: {
                 order: {
                     value: '',
@@ -99,101 +98,26 @@ export default {
                     rules: [v => !!v || 'Data de Apresentação é obrigatória']
                 },
                 guests: { value: [] },
-                challenges: {
-                    value: [],
-                    types: ['Prova de Eliminação', 'Caixa Misteriosa'],
-                    name: '',
-                    duration: '',
-                    type: '',
-                    teams: false,
-                    competitors: [],
-                    competitor: {
-                        key: '',
-                        team: '',
-                        recipes: '',
-                        result: ''
-                    }
-                }
+                challenges: { value: [] }
             }
         };
     },
-    watch: {
-        date: function(val) {
-            this.info.date.formatted = this.formatDate(this.info.date.value);
-        }
-    },
-    mounted() {
-        this.getCompetitors();
-    },
     methods: {
         submit() {
-            firebase
-                .database()
-                .ref()
-                .child('seasons/' + this.$route.params.key)
-                .child('episodes')
-                .push({
-                    order: this.info.order.value,
-                    youtube: this.info.youtube.value,
-                    date: this.info.date.value,
-                    audience: this.info.audience.value,
-                    guests: this.info.guests.value,
-                    challenges: this.info.challenges.value
-                })
-                .then(() => router.push('/console'));
-        },
-        addCompetitor() {
-            this.info.challenges.competitors[
-                this.info.challenges.competitor.key.key
-            ] = {
-                team: this.info.challenges.competitor.team,
-                recipes: this.info.challenges.competitor.recipes,
-                result: this.info.challenges.competitor.result
-            };
-
-            this.info.challenges.competitor.key = this.info.challenges.competitor.result = this.info.challenges.competitor.team = this.info.challenges.competitor.recipes =
-                '';
-
-            console.log(this.info.challenges.competitors);
-        },
-        addChallenge() {
-            this.info.challenges.value.push({
-                name: this.info.challenges.name,
-                duration: this.info.challenges.duration,
-                type: this.info.challenges.type,
-                teams: this.info.challenges.teams,
-                competitors: this.info.challenges.competitors
-            });
-
-            this.info.challenges.name = this.info.challenges.duration = this.info.challenges.type = this.info.challenges.teams = this.info.challenges.competitors =
-                '';
-        },
-        formatDate(date) {
-            if (!date) return null;
-
-            const [year, month, day] = date.split('-');
-            return `${day}/${month}/${year}`;
-        },
-        parseDate(date) {
-            if (!date) return null;
-
-            const [day, month, year] = date.split('/');
-            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-        },
-        getCompetitors() {
-            firebase
-                .database()
-                .ref(`seasons/${this.$route.params.key}/competitors`)
-                .on(
-                    'value',
-                    snapshot =>
-                        (this.competitors = this.snapToArray(snapshot.val()))
-                );
-        },
-        snapToArray(snapshot) {
-            return Object.entries(snapshot).map(e =>
-                Object.assign(e[1], { key: e[0] })
-            );
+            if (this.$refs.form.validate()) {
+                this.$store.dispatch('seasons/saveEpisode', {
+                    values: {
+                        order: this.info.order.value,
+                        youtube: this.info.youtube.value,
+                        date: this.info.date.value,
+                        audience: this.info.audience.value,
+                        guests: this.info.guests.value,
+                        challenges: this.info.challenges.value
+                    },
+                    route: '/console',
+                    keySeason: this.$route.params.key
+                });
+            }
         }
     }
 };

@@ -10,11 +10,7 @@ const getters = {};
 
 const actions = {
     init() {
-        utils.list(
-            'seasons',
-            resp => this.commit('seasons/set', resp.val()),
-            null
-        );
+        utils.list('seasons', resp => this.commit('seasons/set', resp.val()), null);
     },
     save({ commit }, { values, route }) {
         utils.save('seasons', values).then(() => router.push(route));
@@ -22,6 +18,11 @@ const actions = {
     saveCompetitor({ commit }, { values, keySeason, route }) {
         utils
             .saveToChild(`seasons/${keySeason}`, 'competitors', values)
+            .then(() => router.push(route));
+    },
+    saveEpisode({ commit }, { values, keySeason, route }) {
+        utils
+            .saveToChild(`seasons/${keySeason}`, 'episodes', values)
             .then(() => router.push(route));
     }
 };
@@ -41,9 +42,15 @@ const mutations = {
                 .snapToArray(season.judges)
                 .map(judge => this.getters['judges/byId'](judge.key));
 
+            if(season.competitors != null) 
+                season.competitors = helpers.snapToArray(season.competitors);
+
+            if(season.episodes != null) 
+                season.episodes = helpers.snapToArray(season.episodes);
+
             return season;
         });
-
+        
         state.seasons = values;
     }
 };
