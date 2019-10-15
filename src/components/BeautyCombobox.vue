@@ -9,6 +9,8 @@
         chips
         eager
         :multiple="multiple"
+        :dense="solo"
+        :solo="solo"
     >
         <template v-slot:selection="data">
             <v-chip>
@@ -31,7 +33,8 @@ export default {
         'itemValue',
         'itemImg',
         'value',
-        'multiple'
+        'multiple',
+        'solo'
     ],
     data() {
         return {
